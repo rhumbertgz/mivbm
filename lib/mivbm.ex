@@ -15,20 +15,20 @@ defmodule MIVBM do
       :world
 
   """
-  def monitor_lines(lines, broker, token) do
+  def monitor_lines(lines, observer, token) do
     Logger.debug("#{@module}.monitor_lines")
 
     lines
       |> Enum.split(10)
       |> Tuple.to_list()
       |> Enum.each(fn [] -> :ok ;
-                      l  -> VehicleMonitor.monitor(l, broker, token)
+                      l  -> VehicleMonitor.monitor(l, observer, token)
                    end)
   end
 
-  def monitor_stops(lines, broker, token) do
+  def monitor_stops(lines, observer, token) do
     # TODO
-    {lines, broker, token}
+    {lines, observer, token}
 
   end
 
