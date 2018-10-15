@@ -23,5 +23,5 @@ erl_crash.dump
 mivbm-*.tar
 
 /.elixir_ls
-/.coordinates
+/mix.lock
 
