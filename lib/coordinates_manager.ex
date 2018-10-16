@@ -16,7 +16,7 @@ defmodule MIVBM.CoordinatesManager do
       |> Map.get(line, %{})
       |> Map.get(direction, %{})
       |> Map.get(point, {[0,0],0,0})
-    log_missing_stop(coord, line, direction, point, 0)
+    log_missing_direction_stop(coord, line, direction, point, 0)
     %{coordinates: coord, type: 1, capacity: 0}
   end
 
@@ -26,16 +26,16 @@ defmodule MIVBM.CoordinatesManager do
     |> Map.get(line, %{})
       |> Map.get(direction, %{})
       |> Map.get(point, {0,[0,0],0})
-    log_missing_stop(coord, line, direction, point, distance)
+    log_missing_direction_stop(coord, line, direction, point, distance)
     %{coordinates: coord, type: type, capacity: 0}
   end
 
 
-  def log_missing_stop([0,0], line, direction, point, distance) do
+  def log_missing_direction_stop([0,0], line, direction, point, distance) do
     content = :io_lib.format("~tp.~n", ["line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: #{inspect distance}"])
     :file.write_file("logs/dm#{System.monotonic_time}.lc", content)
   end
-  def log_missing_stop(_,_,_,_,_) do
+  def log_missing_direction_stop(_,_,_,_,_) do
     :ok
   end
 end
