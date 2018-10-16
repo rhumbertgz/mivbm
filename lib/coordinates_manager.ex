@@ -12,33 +12,30 @@ defmodule MIVBM.CoordinatesManager do
 
   def get_coordinates_by_line(coordinates,line, %VehiclePosition{ directionId: direction, pointId: point, distanceFromPoint: 0}) do
     Logger.debug("#{@module}.get_coordinates_by_line line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: 0")
-    try do
-      {coord , _, _} = coordinates
-      |> Map.get(line)
-      |> Map.get(direction)
-      |> Map.get(point)
-      %{coordinates: coord, type: 1, capacity: 0}
-    catch
-      _ -> content = :io_lib.format("~tp.~n", ["line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: 0"])
-          :file.write_file("logs/dm#{System.monotonic_time}.lc", content)
-          %{coordinates: [-1,-1], type: 1, capacity: 0}
-    end
+    {coord , _, _} = coordinates
+      |> Map.get(line, %{})
+      |> Map.get(direction, %{})
+      |> Map.get(point, {[0,0],0,0})
+    log_missing_stop(coord, line, direction, point, 0)
+    %{coordinates: coord, type: 1, capacity: 0}
   end
 
   def get_coordinates_by_line(coordinates, line, %VehiclePosition{ directionId: direction, pointId: point, distanceFromPoint: distance}) do
     Logger.debug("#{@module}.get_coordinates_by_line line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: #{inspect distance}")
-    try do
     {_ , coord, type} = coordinates
-    |> Map.get(line)
-    |> Map.get(direction)
-    |> Map.get(point)
-
+    |> Map.get(line, %{})
+      |> Map.get(direction, %{})
+      |> Map.get(point, {0,[0,0],0})
+    log_missing_stop(coord, line, direction, point, distance)
     %{coordinates: coord, type: type, capacity: 0}
-  catch
-    _ -> content = :io_lib.format("~tp.~n", ["line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: #{inspect distance}"])
-        :file.write_file("logs/dm#{System.monotonic_time}.lc", content)
-        %{coordinates: [-1,-1], type: 1, capacity: 0}
   end
 
+
+  def log_missing_stop([0,0], line, direction, point, distance) do
+    content = :io_lib.format("~tp.~n", ["line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: #{inspect distance}"])
+    :file.write_file("logs/dm#{System.monotonic_time}.lc", content)
+  end
+  def log_missing_stop(_,_,_,_,_) do
+    :ok
   end
 end
