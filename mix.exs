@@ -19,7 +19,7 @@ defmodule Mivbm.MixProject do
 
   defp deps do
     [
-      {:mivbc, git: "https://github.com/rhumbertgz/mivbc.git"},
+      {:mivbc, git: "git@github.com:rhumbertgz/mivbc.git"},
     ]
   end
 end
