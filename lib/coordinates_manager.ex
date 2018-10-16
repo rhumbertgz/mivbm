@@ -33,7 +33,7 @@ defmodule MIVBM.CoordinatesManager do
 
   def log_missing_direction_stop([0,0], line, direction, point, distance) do
     content = :io_lib.format("~tp.~n", ["line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: #{inspect distance}"])
-    :file.write_file("logs/dm#{System.monotonic_time}.lc", content)
+    :file.write_file("logs/mivbm#{System.monotonic_time}.err", content)
   end
   def log_missing_direction_stop(_,_,_,_,_) do
     :ok
