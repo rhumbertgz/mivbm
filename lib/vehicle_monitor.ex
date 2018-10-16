@@ -78,7 +78,7 @@ defmodule MIVBM.VehicleMonitor do
 
   defp schedule_next_update do
     Logger.debug("#{@module}.schedule_next_update")
-    Process.send_after(self(), :update_position, 20_000) # 20 sec
+    Process.send_after(self(), :update_position, 10_000) # 10 sec
   end
 
 end
