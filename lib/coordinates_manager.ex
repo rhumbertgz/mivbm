@@ -15,7 +15,6 @@ defmodule MIVBM.CoordinatesManager do
     try do
       {coord , _, _} = coordinates
                       |> Map.get(line)
-                      |> Map.get(direction)
                       |> Map.get(point)
       %{coordinates: coord, type: 1, capacity: 0}
     rescue
@@ -28,7 +27,6 @@ defmodule MIVBM.CoordinatesManager do
     try do
       {_ , coord, type} = coordinates
                           |> Map.get(line)
-                          |> Map.get(direction)
                           |> Map.get(point)
       %{coordinates: coord, type: type, capacity: 0}
     rescue
@@ -39,7 +37,8 @@ defmodule MIVBM.CoordinatesManager do
 
   defp log_missing_direction_stop(line, direction, point, distance) do
     content = :io_lib.format("~tp.~n", ["line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: #{inspect distance}"])
-    :file.write_file("logs/mivbm#{System.monotonic_time}.err", content)
+    date = DateTime.utc_now
+    :file.write_file("logs/#{date.day}-#{date.month}-#{date.year} #{date.hour}.#{date.minute}.err", content)
     %{coordinates: [0,0], type: 1, capacity: 0}
   end
 
