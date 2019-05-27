@@ -4,31 +4,30 @@ defmodule MIVBM do
   """
   require Logger
   alias MIVBM.VehicleMonitor
-  @module Atom.to_string(__MODULE__) |> String.split_at(7) |> elem(1)
 
   @doc """
-  Hello world.
+  Monitor a list of lines and notify updates to the observer_pid
 
   ## Examples
 
-      iex> Mivbm.hello()
+      iex> MIVBM.monitor_lines [1,5], my_token, observer_pid
       :world
 
   """
-  def monitor_lines(lines, token) do
-    Logger.debug("#{@module}.monitor_lines")
+  def monitor_lines(lines, token, observer) do
+    Logger.debug("monitor_lines #{inspect lines}")
 
     lines
       |> Enum.split(10)
       |> Tuple.to_list()
       |> Enum.each(fn [] -> :ok ;
-                      l  -> VehicleMonitor.monitor(l, token)
+                      l  -> VehicleMonitor.monitor(l, token, observer)
                    end)
   end
 
-  def monitor_stops(lines, token) do
+  def monitor_stops(lines, token, observer) do
     # TODO
-    {lines, token}
+    {lines, token, observer}
 
   end
 
