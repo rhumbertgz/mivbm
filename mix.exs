@@ -19,7 +19,7 @@ defmodule Mivbm.MixProject do
 
   defp deps do
     [
-      {:mivbc, git: "git@github.com:rhumbertgz/mivbc.git",  tag: "0.1.2"},
+      {:mivbc, git: "git@github.com:rhumbertgz/mivbc.git"},
     ]
   end
 end
