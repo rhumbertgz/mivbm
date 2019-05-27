@@ -1,6 +1,6 @@
 defmodule MIVBM.CoordinatesManager do
   require Logger
-  alias MIVBC.VehiclePosition
+  alias MIVBC.VehiclePositionByLine.Vehicle
   @module Atom.to_string(__MODULE__) |> String.split_at(7) |> elem(1)
 
   def load_coordinates(line) do
@@ -10,7 +10,7 @@ defmodule MIVBM.CoordinatesManager do
     end
   end
 
-  def get_coordinates_by_line(coordinates,line, %VehiclePosition{ directionId: direction, pointId: point, distanceFromPoint: 0}) do
+  def get_coordinates_by_line(coordinates,line, %Vehicle{ directionId: direction, pointId: point, distanceFromPoint: 0}) do
     Logger.debug("#{@module}.get_coordinates_by_line line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: 0")
     try do
       {coord , _, _} = coordinates
@@ -22,7 +22,7 @@ defmodule MIVBM.CoordinatesManager do
     end
   end
 
-  def get_coordinates_by_line(coordinates, line, %VehiclePosition{ directionId: direction, pointId: point, distanceFromPoint: distance}) do
+  def get_coordinates_by_line(coordinates, line, %Vehicle{ directionId: direction, pointId: point, distanceFromPoint: distance}) do
     Logger.debug("#{@module}.get_coordinates_by_line line: #{inspect line} direction: #{inspect direction} point: #{inspect point} distance: #{inspect distance}")
     try do
       {_ , coord, type} = coordinates

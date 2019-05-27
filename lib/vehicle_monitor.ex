@@ -4,20 +4,12 @@ defmodule MIVBM.VehicleMonitor do
   """
   use GenServer
   require Logger
-  alias MIVBM.CoordinatesManager
+  alias MIVBC.VehiclePositionByLine.Line
   @module Atom.to_string(__MODULE__) |> String.split_at(7) |> elem(1)
 
-  @doc """
-
-
-  ## Examples
-
-      iex> Mivbm.
-      :world
-
-  """
-  def monitor(lines, observer, token) do
-    GenServer.start_link(__MODULE__, {lines, observer, token})
+  @spec monitor(any(), any()) :: :ignore | {:error, any()} | {:ok, pid()}
+  def monitor(lines, token) do
+    GenServer.start_link(__MODULE__, {lines, token})
   end
 
   @impl true
@@ -26,54 +18,38 @@ defmodule MIVBM.VehicleMonitor do
   end
 
   @impl true
-  def handle_continue(:init, {lines, observer, token}) do
-    coordinates = Enum.reduce(lines, %{}, fn line, acc ->
-                    Map.put_new(acc, Integer.to_string(line), CoordinatesManager.load_coordinates(line))
-                  end)
-
-    Logger.debug("#{@module}.handle_continue coordinates: #{inspect coordinates}")
-    MIVBC.start()
-    response = MIVBC.vehicle_position_by_Line(lines, token)
-    Logger.debug("#{@module}.handle_continue response: #{inspect response}")
-    schedule_next_update()
-    update_vehicle_positions(observer, response, coordinates)
-    {:noreply, {lines, observer, token, coordinates}}
+  def handle_continue(:init, {lines, token}) do
+    LineAgent.start_link()
+    pull_mivb_api(lines, token)
+    {:noreply, {lines, token}}
   end
-
-
 
   @impl true
-  def handle_info(:update_position, {lines, observer, token, coordinates}) do
-    response = MIVBC.vehicle_position_by_Line(lines, token)
-    Logger.debug("#{@module}.update_position response: #{inspect response}")
-    schedule_next_update()
-    update_vehicle_positions(observer, response, coordinates)
-    {:noreply, {lines, observer, token, coordinates}}
+  def handle_info(:update_position, {lines, token}) do
+    pull_mivb_api(lines, token)
+    {:noreply, {lines, token}}
   end
 
-  defp update_vehicle_positions(_observer, {:error, reason}, _coordinates) do
+  defp pull_mivb_api(lines, token) do
+    response = MIVBC.vehicle_position_by_Line(lines, token)
+    schedule_next_update()
+    update_vehicle_positions(response)
+  end
+
+  defp update_vehicle_positions({:error, reason}) do
     Logger.debug("#{@module}.update_vehicle_positions")
     Logger.error("Error: #{reason}")
   end
 
-  [%MIVBC.Line{ lineId: 0}| []]
-
-  defp update_vehicle_positions(_observer, [%MIVBC.Line{ lineId: 0}| []], _coordinates) do
+  defp update_vehicle_positions([%Line{ lineId: 0}| []]) do
     Logger.error("#{@module}.update_vehicle_positions - Open-Data API Connection Error")
   end
 
-  defp update_vehicle_positions(observer, response, coordinates) do
-    positions = Enum.map(response,
-                        fn l ->
-                          %{line: l.lineId,
-                            vehicles: Enum.map(l.vehiclePositions,
-                                            fn v ->
-                                              MIVBM.CoordinatesManager.get_coordinates_by_line(coordinates, l.lineId, v)
-                                            end)
-                          }
-                        end)
-    Logger.debug("#{@module}.update_vehicle_positions - #{inspect positions}")
-    GenServer.cast(observer, {:update_vehicle_positions, positions})
+  defp update_vehicle_positions(response) do
+    Enum.each(response, fn l ->
+      Enum.each(l.vehiclePositions, fn v ->LineAgent.log(v)end)
+    end)
+
   end
 
   defp schedule_next_update do
