@@ -23,7 +23,6 @@ defmodule MIVBM.VehicleMonitor do
       Map.put_new(acc, Integer.to_string(line), CoordinatesManager.load_coordinates(line))
     end)
 
-    IO.inspect coordinates, label: "Coordinates "
     pull_mivb_api(lines, token, observer, coordinates)
     {:noreply, {lines, token, observer, coordinates}}
   end
