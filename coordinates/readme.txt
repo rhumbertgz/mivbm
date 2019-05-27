@@ -1,0 +1,1 @@
+Put your files with the coordinates per line in this directory (e.g., line-6.lc)
